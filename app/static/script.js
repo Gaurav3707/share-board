@@ -66,7 +66,7 @@ function connectWebSocket() {
     };
 
     socket.onmessage = (event) => {
-        messageInput.value = event.data; // Update the textarea with received data
+        monacoEditor.setValue(event.data); // Update the textarea with received data
     };
 }
 
@@ -81,11 +81,10 @@ document.addEventListener("DOMContentLoaded", function () {
     messageInput.addEventListener("input", () => {
         clearTimeout(typingTimer);
         // typingTimer = setTimeout(doneTyping, doneTypingInterval);
-        // alert(messageInput.getValue);
 
         if (socket && socket.readyState === WebSocket.OPEN) {
             const encoder = new TextEncoder();
-            const encodedData = encoder.encode(messageInput.getValue);
+            const encodedData = encoder.encode(monacoEditor.getValue());
             const textData = new TextDecoder().decode(encodedData);
             socket.send(textData);
         }
