@@ -71,26 +71,33 @@ function connectWebSocket() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    messageInput = document.getElementById("editor");
-    
-    if (!messageInput) {
-        console.error("Error: Could not find element with id 'messageInput'. Make sure the element exists in your HTML.");
-        return;
-    }
-    
-    messageInput.addEventListener("input", () => {
-        clearTimeout(typingTimer);
-        // typingTimer = setTimeout(doneTyping, doneTypingInterval);
+  const messageInput = document.getElementById("editor");
+  
+  if (!messageInput) {
+      console.error("Error: Could not find element with id 'editor'. Make sure the element exists in your HTML.");
+      return;
+  }
 
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            const encoder = new TextEncoder();
-            const encodedData = encoder.encode(monacoEditor.getValue());
-            const textData = new TextDecoder().decode(encodedData);
-            socket.send(textData);
-        }
-    });
+  // Listen for regular input events
+  messageInput.addEventListener("input", sendMessage);
 
-    connectWebSocket();
+  // Listen for backspace key press
+  messageInput.addEventListener("keyup", (event) => {
+      if (event.key === "Backspace") {
+          sendMessage();
+      }
+  });
+
+  function sendMessage() {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+          const encoder = new TextEncoder();
+          const encodedData = encoder.encode(monacoEditor.getValue());
+          const textData = new TextDecoder().decode(encodedData);
+          socket.send(textData);
+      }
+  }
+
+  connectWebSocket();
 });
 
 function doneTyping() {
